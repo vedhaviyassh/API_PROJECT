@@ -1,11 +1,13 @@
-const { json } = require("express");
 const express = require("express");
+var bodyParser = require("body-parser");
 
 //Database
 const database = require("./database");
 
 //Initialize express
 const booky = express();
+booky.use(bodyParser.urlencoded({extended :true}));
+booky.use(bodyParser.json());
 
 //GET ALL BOOKS
 /*
@@ -163,25 +165,93 @@ booky.get("/publications", (req,res) => {
 
 //GET SPECIFIC PUBLICATION BASED ON NAME
 /*
-Route           /publication
-Description     Get all authors based on name
+Route           /publications
+Description     Get all publications based on name
 Access          Public
 Parameter       name
 Methods         GET
 */
 
-booky.get("/author/:name", (req,res) => {
-    const getSpecificAuthor = database.author.filter(
-        (author) => author.name === req.params.name
+booky.get("/publications/:name", (req,res) => {
+    const getSpecificPublication = database.publication.filter(
+        (publication) => publication.name === req.params.name
     );
 
-    if(getSpecificAuthor.length === 0) {
+    if(getSpecificPublication.length === 0) {
         return res.json({
-            error: `Author named ${req.params.name} is not found`
+            error: `No publication found with name ${req.params.name}`
         });
     }
 
-    return res.json({authors: getSpecificAuthor});
+    return res.json({publications: getSpecificPublication});
+});
+
+//GET LIST OF PUBLICATIONS BASED ON BOOK
+/*
+Route           /publications
+Description     Get all publications based on ISBN
+Access          Public
+Parameter       isbn
+Methods         GET
+*/
+
+booky.get("/publications/book/:isbn", (req,res) => {
+    const getSpecificPublication = database.publication.filter(
+        (publication) => publication.books.includes(req.params.isbn)
+    );
+
+    if(getSpecificPublication.length === 0) {
+        return res.json({
+            error: `No publication found with name ${req.params.isbn}`
+        });
+    }
+
+    return res.json({publications: getSpecificPublication});
+});
+
+//ADD NEW BOOKS
+/*
+Route           /book/new
+Description     add new books
+Access          Public
+Parameter       NONE
+Methods         POST
+*/
+
+booky.post("/book/new", (req,res) => {
+    const newBook = req.body;
+    database.books.push(newBook);
+    return res.json({updatedBooks: database.books});
+});
+
+//ADD NEW AUTHORS
+/*
+Route           /author/new
+Description     add new authors
+Access          Public
+Parameter       NONE
+Methods         POST
+*/
+
+booky.post("/author/new", (req,res) => {
+    const newAuthor = req.body;
+    database.author.push(newAuthor);
+    return res.json({updatedAuthors: database.author});
+});
+
+//ADD NEW PUBLICATIONS
+/*
+Route           /publications/new
+Description     add new publications
+Access          Public
+Parameter       NONE
+Methods         POST
+*/
+
+booky.post("/publications/new", (req,res) => {
+    const newPublication = req.body;
+    database.publication.push(newPublication);
+    return res.json({updatedPublications: database.publication});
 });
 
 booky.listen(3000, () => console.log("Server is up and running!!"));

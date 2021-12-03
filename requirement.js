@@ -30,3 +30,8 @@
 //-> to get all publications - DONE
 //-> to get specific publications -
 //-> to get a list of publications based on books
+
+//POST REQUEST
+//-> Add new books
+//-> Add new authors
+//-> Add new publications
